@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:invoicescanner/main.dart';
 import 'package:invoicescanner/store.dart';
 
@@ -15,23 +14,30 @@ class App extends StatelessWidget {
       appBar: AppBar(
         title: Text(appTitle),
       ),
-      body: StreamBuilder(
-        stream: store.imageStream$, 
-        builder: (BuildContext context, AsyncSnapshot snap) {
-          var image = snap.data;
-          return image == null ? Text('No image') : Image.file(image);
-        }
+      body: SingleChildScrollView(
+        child: StreamBuilder(
+          stream: store.stream$,
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (!snapshot.hasData || (snapshot.data.image == null || snapshot.data.imageText == null)) {
+              return Text('No image selected');
+            }
+            if (snapshot.hasError) {
+              return Text(snapshot.error);
+            }
+            return Column(
+              children: <Widget>[
+                Image.file(snapshot.data.image),
+                Text(snapshot.data.imageText.text)
+              ]
+            );
+          }
+        )
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _scan,
+        onPressed: store.selectImage,
         tooltip: 'Scan',
         child: Icon(Icons.add),
       ),
     );
-  }
-
-  Future _scan() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    store.updateImage(image);
   }
 }
