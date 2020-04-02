@@ -41,5 +41,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+  <key>NSCameraUsageDescription</key>
+	<string>Invoice Scanner quiere tomar una foto. ¿Podemos usar tu cámara?</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Invoice Scanner quiere tomar una foto. ¿Podemos usar tu cámara?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Invoice Scanner quiere tomar una foto. ¿Podemos usar tu cámara?</string>
 </dict>
 </plist>
