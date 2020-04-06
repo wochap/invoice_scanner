@@ -2,6 +2,9 @@
 
 Simple OCR on device app with Firebase ML Kit.
 
+![state 1](https://res.cloudinary.com/wochap/image/upload/c_scale,q_auto,w_300/v1586215168/invoice_scanner/Screenshot_20200406-180609_ahlzlj.jpg)
+![state 2](https://res.cloudinary.com/wochap/image/upload/c_scale,q_auto,w_300/v1586215168/invoice_scanner/Screenshot_20200406-181519_qdladg.jpg)
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
