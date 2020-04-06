@@ -1,6 +1,6 @@
 # Invoice Scanner
 
-Invoice scanner
+Simple OCR on device app with Firebase ML Kit.
 
 ## Getting Started
 
