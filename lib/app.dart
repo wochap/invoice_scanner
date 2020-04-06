@@ -13,10 +13,79 @@ class App extends StatelessWidget {
 
   App({@required this.appTitle});
 
-  _buildResults(File image, Size imageSize, VisionText visionText) {
+  Widget _buildOCRResults(File image, Size imageSize, VisionText visionText) {
     final CustomPainter painter = TextDetectorPainter(imageSize, visionText);
     return CustomPaint(
       painter: painter,
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+        child: Column(
+          children: <Widget>[
+            Icon(
+              Icons.broken_image,
+              size: 160,
+              color: Colors.black54,
+            ),
+            Text(
+              'Select an image',
+              style: Theme.of(context).textTheme.display1,
+            ),
+          ],
+        ),
+      );
+  }
+
+  Widget _buildContent(BuildContext context, AsyncSnapshot snapshot) {
+    if (!snapshot.hasData ||
+        (snapshot.data.image == null ||
+            snapshot.data.imageText == null ||
+            snapshot.data.imageSize == null)) {
+      return _buildEmptyState(context)
+    }
+    return Column(
+      children: <Widget>[
+        Stack(
+          children: <Widget>[
+            Image.file(snapshot.data.image),
+            Positioned(
+              child: _buildOCRResults(snapshot.data.image,
+                  snapshot.data.imageSize, snapshot.data.imageText),
+              bottom: 0,
+              right: 0,
+              top: 0,
+              left: 0,
+            ),
+          ],
+        ),
+        Container(
+          alignment: Alignment.topLeft,
+          child: Text(
+            snapshot.data.imageText.text,
+            textDirection: TextDirection.ltr,
+          ),
+          padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 80),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScrollContainer(
+    BuildContext context,
+    BoxConstraints viewportConstraints,
+  ) {
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: viewportConstraints.maxHeight - kToolbarHeight,
+        ),
+        child: StreamBuilder(
+          stream: store.stream$,
+          builder: _buildContent,
+        ),
+      ),
     );
   }
 
@@ -26,41 +95,11 @@ class App extends StatelessWidget {
       appBar: AppBar(
         title: Center(child: Text(appTitle)),
       ),
-      body: SingleChildScrollView(
-        child: StreamBuilder(
-          stream: store.stream$,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (!snapshot.hasData ||
-                (snapshot.data.image == null ||
-                    snapshot.data.imageText == null ||
-                    snapshot.data.imageSize == null)) {
-              return Text('No image selected');
-            }
-            if (snapshot.hasError) {
-              return Text(snapshot.error);
-            }
-            return Column(
-              children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    Image.file(snapshot.data.image),
-                    Positioned(
-                      child: _buildResults(snapshot.data.image,
-                          snapshot.data.imageSize, snapshot.data.imageText),
-                      bottom: 0,
-                      right: 0,
-                      top: 0,
-                      left: 0,
-                    ),
-                  ],
-                ),
-                Text(snapshot.data.imageText.text),
-              ],
-            );
-          },
-        ),
+      body: LayoutBuilder(
+        builder: _buildScrollContainer,
       ),
       floatingActionButton: SpeedDial(
+        overlayColor: Colors.black,
         animatedIcon: AnimatedIcons.menu_close,
         children: <SpeedDialChild>[
           SpeedDialChild(
