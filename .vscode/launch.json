@@ -14,6 +14,18 @@
       "name": "iPhone simulator",
       "request": "launch",
       "type": "dart",
+      "deviceId": "20DDE41B-F151-417E-AD17-FF0882E7784F"
+    },
+    {
+      "name": "iPad",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "765c138f9d78c1f2a170b056a8fc6825acf6f94b"
+    },
+    {
+      "name": "iPhone",
+      "request": "launch",
+      "type": "dart",
       "deviceId": "660f6dd439c3ce244fae18267904a14129fb1b7a"
     }
   ],
