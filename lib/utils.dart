@@ -1,6 +1,7 @@
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 
+// source: https://github.com/FirebaseExtended/flutterfire/blob/master/packages/firebase_ml_vision/example/lib/detector_painters.dart#L124
 class TextDetectorPainter extends CustomPainter {
   TextDetectorPainter(this.absoluteImageSize, this.visionText);
 
