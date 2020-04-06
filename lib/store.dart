@@ -5,33 +5,62 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxdart/rxdart.dart';
-// runtimeType
+
 class _ImageState {
   final VisionText imageText;
+  final Size imageSize;
   final File image;
 
-  _ImageState(this.image, this.imageText);
+  _ImageState(this.image, this.imageSize, this.imageText);
 }
 
 class Store {
   BehaviorSubject _image = BehaviorSubject.seeded(null);
+  BehaviorSubject _imageSize = BehaviorSubject.seeded(null);
   BehaviorSubject _imageText = BehaviorSubject.seeded(null);
 
   get imageStream$ => _image.stream;
+  get imageSizeStream$ => _imageSize.stream;
   get imageTextStream$ => _imageText.stream;
   get image => _image.value;
+  get imagesize => _imageSize.value;
   get imageText => _imageText.value;
-  get stream$ => _image.zipWith(_imageText, (image, imageText) => _ImageState(image, imageText));
+  get stream$ => Rx.combineLatest3(
+        _image,
+        _imageSize,
+        _imageText,
+        (image, imageSize, imageText) =>
+            _ImageState(image, imageSize, imageText),
+      );
 
-  Future selectImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+  Future selectImage(ImageSource source) async {
+    File image = await ImagePicker.pickImage(source: source);
     if (image == null) {
       return;
     }
     File croppedImage = await _cropImage(image);
     VisionText visionText = await _readTextFromImage(croppedImage);
+    Size imageSize = await _getImageSize(croppedImage);
     _image.add(croppedImage);
+    _imageSize.add(imageSize);
     _imageText.add(visionText);
+  }
+
+  Future<Size> _getImageSize(File imageFile) async {
+    final Completer<Size> completer = Completer<Size>();
+
+    final Image image = Image.file(imageFile);
+    image.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener((ImageInfo info, bool _) {
+        completer.complete(Size(
+          info.image.width.toDouble(),
+          info.image.height.toDouble(),
+        ));
+      }),
+    );
+
+    final Size imageSize = await completer.future;
+    return imageSize;
   }
 
   Future<File> _cropImage(File image) async {
@@ -42,23 +71,25 @@ class Store {
         CropAspectRatioPreset.ratio3x2,
         CropAspectRatioPreset.original,
         CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9
+        CropAspectRatioPreset.ratio16x9,
       ],
       androidUiSettings: AndroidUiSettings(
-          toolbarTitle: 'Cropper',
-          toolbarColor: Colors.deepOrange,
-          toolbarWidgetColor: Colors.white,
-          initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false),
+        toolbarTitle: 'Cropper',
+        toolbarColor: Colors.deepOrange,
+        toolbarWidgetColor: Colors.white,
+        initAspectRatio: CropAspectRatioPreset.original,
+        lockAspectRatio: false,
+      ),
       iosUiSettings: IOSUiSettings(
         minimumAspectRatio: 1.0,
-      )
+      ),
     );
     return croppedImage;
   }
 
   Future _readTextFromImage(File croppedImage) async {
-    FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(croppedImage);
+    FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromFile(croppedImage);
     TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
     VisionText visionText = await textRecognizer.processImage(visionImage);
     textRecognizer.close();
