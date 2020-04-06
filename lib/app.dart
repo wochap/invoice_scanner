@@ -22,20 +22,20 @@ class App extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
-        child: Column(
-          children: <Widget>[
-            Icon(
-              Icons.broken_image,
-              size: 160,
-              color: Colors.black54,
-            ),
-            Text(
-              'Select an image',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      );
+      child: Column(
+        children: <Widget>[
+          Icon(
+            Icons.broken_image,
+            size: 160,
+            color: Colors.black54,
+          ),
+          Text(
+            'Select an image',
+            style: Theme.of(context).textTheme.display1,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildContent(BuildContext context, AsyncSnapshot snapshot) {
@@ -43,7 +43,7 @@ class App extends StatelessWidget {
         (snapshot.data.image == null ||
             snapshot.data.imageText == null ||
             snapshot.data.imageSize == null)) {
-      return _buildEmptyState(context)
+      return _buildEmptyState(context);
     }
     return Column(
       children: <Widget>[
