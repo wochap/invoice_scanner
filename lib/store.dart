@@ -34,13 +34,16 @@ class Store {
       );
 
   Future selectImage(ImageSource source) async {
-    File image = await ImagePicker.pickImage(source: source);
+    final File image = await ImagePicker.pickImage(source: source);
     if (image == null) {
       return;
     }
     File croppedImage = await _cropImage(image);
-    VisionText visionText = await _readTextFromImage(croppedImage);
-    Size imageSize = await _getImageSize(croppedImage);
+    if (croppedImage == null) {
+      croppedImage = image;
+    }
+    final VisionText visionText = await _readTextFromImage(croppedImage);
+    final Size imageSize = await _getImageSize(croppedImage);
     _image.add(croppedImage);
     _imageSize.add(imageSize);
     _imageText.add(visionText);
@@ -66,19 +69,12 @@ class Store {
   Future<File> _cropImage(File image) async {
     File croppedImage = await ImageCropper.cropImage(
       sourcePath: image.path,
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
-        CropAspectRatioPreset.ratio3x2,
-        CropAspectRatioPreset.original,
-        CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9,
-      ],
       androidUiSettings: AndroidUiSettings(
         toolbarTitle: 'Cropper',
-        toolbarColor: Colors.deepOrange,
+        toolbarColor: Colors.purple,
         toolbarWidgetColor: Colors.white,
-        initAspectRatio: CropAspectRatioPreset.original,
         lockAspectRatio: false,
+        hideBottomControls: true,
       ),
       iosUiSettings: IOSUiSettings(
         minimumAspectRatio: 1.0,
